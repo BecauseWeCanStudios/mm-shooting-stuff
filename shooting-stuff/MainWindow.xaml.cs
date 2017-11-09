@@ -38,6 +38,8 @@ namespace stuff_falling
         public MainWindow()
         {
             InitializeComponent();
+            AnimCanvas.Children.Add(XAxis);
+            AnimCanvas.Children.Add(YAxis);
             Model.CalculationCompleted += OnCalculationComplete;
             DataContext = this;
             Update();
@@ -58,6 +60,36 @@ namespace stuff_falling
         private List<Polyline> Polylines = new List<Polyline>();
         private List<DoubleAnimationUsingKeyFrames> YAnimations = new List<DoubleAnimationUsingKeyFrames>();
         private List<DoubleAnimationUsingKeyFrames> XAnimations = new List<DoubleAnimationUsingKeyFrames>();
+        private Line XAxis = new Line()
+        {
+            Stroke = new SolidColorBrush(Colors.Black),
+            StrokeThickness = 2
+        };
+        private Line YAxis = new Line()
+        {
+            Stroke = new SolidColorBrush(Colors.Black),
+            StrokeThickness = 2
+        };
+        private TextBlock X1TextBlock = new TextBlock()
+        {
+            Foreground = new SolidColorBrush(Colors.Black),
+            FontSize = 14
+        };
+        private TextBlock X2TextBlock = new TextBlock()
+        {
+            Foreground = new SolidColorBrush(Colors.Black),
+            FontSize = 14
+        };
+        private TextBlock Y1TextBlock = new TextBlock()
+        {
+            Foreground = new SolidColorBrush(Colors.Black),
+            FontSize = 14
+        };
+        private TextBlock Y2TextBlock = new TextBlock()
+        {
+            Foreground = new SolidColorBrush(Colors.Black),
+            FontSize = 14
+        };
 
         private List<double> Times = new List<double>();
 
@@ -90,7 +122,9 @@ namespace stuff_falling
                 Polylines.Add(new Polyline
                 {
                     Stroke = new SolidColorBrush(Colors.Black),
-                    StrokeThickness = 5
+                    StrokeThickness = 5,
+                    StrokeEndLineCap = PenLineCap.Round,
+                    StrokeStartLineCap = PenLineCap.Round
                 });
                 AnimCanvas.Children.Add(Polylines.Last());
                 Canvas.SetLeft(AnimCanvas.Children[AnimCanvas.Children.Count - 1], 200);
@@ -110,9 +144,7 @@ namespace stuff_falling
             Labels.Clear();
             Labels.AddRange(result.Time.ConvertAll(new Converter<double, string>((double x) => { return x.ToString(); })));
             Ellipsies.Last().Fill = new SolidColorBrush(Chart.Colors[(int)(colorIndex - Chart.Colors.Count * Math.Truncate(colorIndex / (double)Chart.Colors.Count))]);
-            Polylines.Last().Points.Clear();
-            foreach (var it in result.Coordinates)
-                Polylines.Last().Points.Add(new Point(it.X, it.Y));
+            Polylines.Last().Stroke = new SolidColorBrush(Chart.Colors[(int)(colorIndex - Chart.Colors.Count * Math.Truncate(colorIndex / (double)Chart.Colors.Count))]);
             UpdateAnimation = true;
             DataChanged = true;
             Times = result.Time;
@@ -240,8 +272,11 @@ namespace stuff_falling
                 YSpeedSeries.RemoveAt(index);
                 XSpeedSeries.RemoveAt(index);
                 AnimCanvas.Children.Remove(Ellipsies[index]);
+                AnimCanvas.Children.Remove(Polylines[index]);
                 Ellipsies.RemoveAt(index);
+                Polylines.RemoveAt(index);
                 YAnimations.RemoveAt(index);
+                XAnimations.RemoveAt(index);
                 Parameters.RemoveAt(index);
                 UpdateAnimation = true;
                 DataChanged = true;
@@ -260,9 +295,17 @@ namespace stuff_falling
             Update();
         }
 
+        private void UpdateText(TextBlock block, string text, double left, double top)
+        {
+            AnimCanvas.Children.Remove(block);
+            block.Text = text;
+            AnimCanvas.Children.Add(block);
+            Canvas.SetLeft(block, left);
+            Canvas.SetTop(block, top);
+        }
+
         private void SetAnim()
         {
-            //TODO: MAKE NEW ANIMATION
             double height = -1;
             foreach (var it in YSeries)
                 foreach (double h in it.Values)
@@ -277,13 +320,19 @@ namespace stuff_falling
                     if (x > right)
                         right = x;
                 }
-            double kx = right != left ? (AnimCanvas.Width - 200) / (right - left) : 0;
+            double kx = Math.Abs(right - left) >= 1e-10 ? (AnimCanvas.Width - 200) / (right - left) : 0;
             double ky = (AnimCanvas.Height - 200) / height;
+            XAxis.X1 = 115; XAxis.X2 = AnimCanvas.Width - 85; XAxis.Y1 = AnimCanvas.Height - 85; XAxis.Y2 = XAxis.Y1;
+            YAxis.X1 = -left * kx + 115; YAxis.X2 = YAxis.X1; YAxis.Y1 = XAxis.Y1; YAxis.Y2 = AnimCanvas.Height - 85 - ky * height;
+            UpdateText(X1TextBlock, left.ToString("N3"), XAxis.X1, XAxis.Y1 + 10);
+            UpdateText(X2TextBlock, right.ToString("N3"), XAxis.X2, XAxis.Y2 + 10);
+            UpdateText(Y1TextBlock, "0.000", YAxis.X1, YAxis.Y1 + 10);
+            UpdateText(Y2TextBlock, height.ToString("N3"), YAxis.X2, YAxis.Y2 - 10);
             for (int i = 0; i < Ellipsies.Count; ++i)
             {
                 DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
                 foreach (double it in YSeries[i].Values)
-                    anim.KeyFrames.Add(new LinearDoubleKeyFrame(AnimCanvas.Height - 100 -  ky * it));
+                    anim.KeyFrames.Add(new LinearDoubleKeyFrame(AnimCanvas.Height - 100 - ky * it));
                 anim.Duration = new Duration(new TimeSpan(0, 0, 5));
                 if (i == 0)
                     anim.Completed += AnimEnd;
@@ -299,7 +348,7 @@ namespace stuff_falling
                 Canvas.SetLeft(Ellipsies[i], XAnimations[i].KeyFrames[0].Value);
                 Polylines[i].Points.Clear();
                 for (int j = 0; j < YSeries[i].Values.Count; ++j)
-                    Polylines.Last().Points.Add(new Point(anim1.KeyFrames[j].Value - anim1.KeyFrames[0].Value + 15, anim.KeyFrames[j].Value - anim.KeyFrames[0].Value + 15));
+                    Polylines[i].Points.Add(new Point(anim1.KeyFrames[j].Value - anim1.KeyFrames[0].Value + 15, anim.KeyFrames[j].Value - anim.KeyFrames[0].Value + 15));
             }
             UpdateAnimation = false;
         }
@@ -329,13 +378,14 @@ namespace stuff_falling
 
         private void TRTB_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (AnimCanvas != null)
+                AnimCanvas.Children.RemoveRange(2, YSeries.Count * 2);
             YSeries.Clear();
             XSeries.Clear();
             YSpeedSeries.Clear();
             XSpeedSeries.Clear();
-            for (int i = 0; i < Ellipsies.Count(); ++i)
-                AnimCanvas.Children.RemoveAt(AnimCanvas.Children.Count - 1);
             Ellipsies.Clear();
+            Polylines.Clear();
             YAnimations.Clear();
             XAnimations.Clear();
             AddEllipse = true;

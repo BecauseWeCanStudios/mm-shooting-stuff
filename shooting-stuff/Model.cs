@@ -26,11 +26,7 @@ namespace stuff_falling
             private double angle;
             public double AngleRad { get { return angle; } set { angle = value; } }
             public double AngleGrad { get { return angle * 180 / Math.PI; } set { angle = value * Math.PI / 180; } }
-<<<<<<< HEAD
-            public Vector SpeedVector { get { return new Vector(Speed * Math.Cos(AngleRad) + Shift, Speed * Math.Sin(AngleRad)); } }
-=======
             public Vector SpeedVector { get { return new Vector(Speed * Math.Cos(AngleRad), Speed * Math.Sin(AngleRad)); } }
->>>>>>> 4b62f4289c0d3b22c80e61a3dbacf5bec5464149
             public double EndTime { get; set; }
             public double SegmentCount { get; set; }
             public bool IsConstGravitationalAcceleration { get; set; } = false;
