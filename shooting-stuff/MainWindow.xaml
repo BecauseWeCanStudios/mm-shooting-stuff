@@ -485,7 +485,7 @@
                             <Label Content="Параметр"/>
                             <RadioButton Name="YRadioButton" GroupName="Plot" Content="Координата Y" IsChecked="True" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
                             <RadioButton Name="XRadioButton" GroupName="Plot" Content="Координата X" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
-                            <RadioButton Name="YSpeedRadioButton" GroupName="Plot" Content="Скорсоть Y" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <RadioButton Name="YSpeedRadioButton" GroupName="Plot" Content="Скорость Y" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
                             <RadioButton Name="XSpeedRadioButton" GroupName="Plot" Content="Скорость X" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
                             <Separator/>
                             <Label Content="Эксперименты"/>

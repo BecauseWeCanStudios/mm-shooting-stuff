@@ -105,10 +105,10 @@ namespace stuff_falling
                             archimedes = y => parameters.ArchimedesCoeff(y) * 9.81 / Math.Pow(1 - y / 6371000, 2);
                         break;
                     case Forces.Drag:
-                        drag = (v, y) => parameters.DragCoeff(y) / parameters.SphereMass * new Vector(v.X * v.X, v.Y * v.Y);
+                        drag = (v, y) => parameters.DragCoeff(y) / parameters.SphereMass * new Vector(-(v.X * v.X), v.Y * v.Y);
                         break;
                     case Forces.Viscosity:
-                        drag = (v, y) => parameters.ViscosityCoeff(y) * v / parameters.SphereMass;
+                        drag = (v, y) => parameters.ViscosityCoeff(y) * new Vector(-v.X, v.Y) / parameters.SphereMass;
                         break;
                     default:
                         throw new Exception("How did you get here?!?!?!?!");

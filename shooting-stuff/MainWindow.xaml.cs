@@ -145,7 +145,8 @@ namespace stuff_falling
                 ConstEnviromentDensity = Convert.ToDouble(PassDefaultIfEmpty(EnvDensity.Text)),
                 EnviromentViscosity = Convert.ToDouble(PassDefaultIfEmpty(EnvViscosity.Text)),
                 IsConstDensity = RhoIsConst.IsChecked.Value,
-                Shift = Convert.ToDouble(PassDefaultIfEmpty(EnvSpeed.Text))
+                Shift = Convert.ToDouble(PassDefaultIfEmpty(EnvSpeed.Text)),
+                AngleGrad = Convert.ToDouble(PassDefaultIfEmpty(Angle.Text))
             };
             if (Parameters.Count == 0)
                 Parameters.Add(parameters);
