@@ -26,7 +26,11 @@ namespace stuff_falling
             private double angle;
             public double AngleRad { get { return angle; } set { angle = value; } }
             public double AngleGrad { get { return angle * 180 / Math.PI; } set { angle = value * Math.PI / 180; } }
+<<<<<<< HEAD
             public Vector SpeedVector { get { return new Vector(Speed * Math.Cos(AngleRad) + Shift, Speed * Math.Sin(AngleRad)); } }
+=======
+            public Vector SpeedVector { get { return new Vector(Speed * Math.Cos(AngleRad), Speed * Math.Sin(AngleRad)); } }
+>>>>>>> 4b62f4289c0d3b22c80e61a3dbacf5bec5464149
             public double EndTime { get; set; }
             public double SegmentCount { get; set; }
             public bool IsConstGravitationalAcceleration { get; set; } = false;
@@ -105,10 +109,10 @@ namespace stuff_falling
                             archimedes = y => parameters.ArchimedesCoeff(y) * 9.81 / Math.Pow(1 - y / 6371000, 2);
                         break;
                     case Forces.Drag:
-                        drag = (v, y) => parameters.DragCoeff(y) / parameters.SphereMass * new Vector(-(v.X * v.X), v.Y * v.Y);
+                        drag = (v, y) => -parameters.DragCoeff(y) / parameters.SphereMass * (v - new Vector(parameters.Shift, 0)).Length * (v - new Vector(parameters.Shift, 0));
                         break;
                     case Forces.Viscosity:
-                        drag = (v, y) => parameters.ViscosityCoeff(y) * new Vector(-v.X, v.Y) / parameters.SphereMass;
+                        drag = (v, y) => -parameters.ViscosityCoeff(y) * (v - new Vector(parameters.Shift, 0)) / parameters.SphereMass;
                         break;
                     default:
                         throw new Exception("How did you get here?!?!?!?!");
