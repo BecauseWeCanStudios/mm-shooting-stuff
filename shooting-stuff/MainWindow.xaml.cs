@@ -91,6 +91,11 @@ namespace stuff_falling
             FontSize = 14
         };
 
+        private List<string> TableHeader = new List<string>()
+        {
+            "x_0", "y_0", "v_0", "a_0", "m", "Сила Архимеда", "Вязкое трение", "Лобовое сопротивление", "g=const", "p=const", "Ветер" 
+        };
+
         private List<double> Times = new List<double>();
 
         private bool AddEllipse = true;
@@ -152,6 +157,8 @@ namespace stuff_falling
                 UpdateDataTab();
             if (AnimationTab.IsSelected)
                 SetAnim();
+            if (ExperimentsTab.IsSelected)
+                UpdateExperimentsTab();
         }
 
         private void OnCalculationComplete(object sender, Model.Result result)
@@ -223,7 +230,7 @@ namespace stuff_falling
 
         private void TB_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (this.IsLoaded)
+            if (IsLoaded)
             {
                 Update();
             }
@@ -236,7 +243,7 @@ namespace stuff_falling
 
         private void CheckboxOnIsEnabledChanged(object sender, EventArgs e)
         {
-            if (this.IsLoaded)
+            if (IsLoaded)
             {
                 Update();
             }
@@ -388,6 +395,7 @@ namespace stuff_falling
             Polylines.Clear();
             YAnimations.Clear();
             XAnimations.Clear();
+            Parameters.Clear();
             AddEllipse = true;
             colorIndex = 0;
             TB_TextChanged(sender, e);
@@ -395,7 +403,6 @@ namespace stuff_falling
 
         private void UpdateDataTab()
         {
-            //TODO: MAKE NEW TABLE???
             if (!DataChanged)
                 return;
             DataChanged = false;
@@ -430,8 +437,6 @@ namespace stuff_falling
             }
             Grid.ItemsSource = null;
             Grid.ItemsSource = Data.AsDataView();
-            ExperimentList.ItemsSource = null;
-            ExperimentList.ItemsSource = Parameters;
         }
 
         private void TabablzControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -440,6 +445,48 @@ namespace stuff_falling
                 UpdateDataTab();
             if (AnimationTab.IsSelected)
                 SetAnim();
+            if (ExperimentsTab.IsSelected)
+                UpdateExperimentsTab();
+        }
+
+        private void UpdateExperimentsTab()
+        {
+            ExperimentsGrid.ItemsSource = null;
+            DataTable dataTable = new DataTable();
+            foreach (var it in TableHeader)
+                dataTable.Columns.Add(it);
+            foreach (var it in Parameters)
+            {
+                dataTable.Rows.Add(
+                    "0", 
+                    it.Height.ToString("N3"), 
+                    it.Speed.ToString("N3"), 
+                    it.AngleGrad.ToString("N3"),
+                    it.SphereMass.ToString("N3"),
+
+                    it.Forces.IndexOf(Model.Forces.Archimedes) == -1 ? "-" :
+                    $"kA={(it.IsConstDensity ? it.ArchimedesCoeff(0).ToString("N3") : "kA(y)")}\n" +
+                    $"ρ(тела)={it.SphereDensity:N3}\n" +
+                    $"ρ(среды)={(it.IsConstDensity ? it.EnviromentDensity(0).ToString("N3") : "ρ(y)")}\n" +
+                    $"V={it.SphereVolume:N3}\nR={it.SphereRadius:N3}",
+
+                    it.Forces.IndexOf(Model.Forces.Viscosity) == -1 ? "-" :
+                    $"k1={(it.IsConstDensity ? it.ViscosityCoeff(0).ToString("N3") : "k1(y)")}\n" +
+                    $"S={it.CrossSectionArea:N3}\n" +
+                    $"ρ(среды)={(it.IsConstDensity ? it.EnviromentDensity(0).ToString("N3") : "ρ(y)")}\n" +
+                    $"вязкость={it.EnviromentViscosity:N3}",
+
+                    it.Forces.IndexOf(Model.Forces.Drag) == -1 ? "-" :
+                    $"k2={(it.IsConstDensity ? it.DragCoeff(0).ToString("N3") : "k2(y)")}\n" +
+                    $"ρ(среды)={(it.IsConstDensity ? it.EnviromentDensity(0).ToString("N3") : "ρ(y)")}\n" +
+                    $"S={it.CrossSectionArea:N3}\nR={it.SphereRadius:N3}\nC=2",
+
+                    it.IsConstGravitationalAcceleration ? "+" : "-",
+                    it.IsConstDensity ? "+" : "-",
+                    it.Shift.ToString("N3")
+                );
+            }
+            ExperimentsGrid.ItemsSource = dataTable.DefaultView;
         }
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)

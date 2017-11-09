@@ -537,8 +537,6 @@
                 <Grid ShowGridLines="False">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
-                        <ColumnDefinition Width="300"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35"></RowDefinition>
@@ -547,16 +545,17 @@
                     <DataGrid x:Name="Grid" Grid.Column="0" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"></DataGrid>
                     <Button x:Name="SaveButton" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Click="SaveButton_OnClick">Сохранить</Button>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Center"></GridSplitter>
-
-                    <ListBox x:Name="ExperimentList" Grid.Column="2" Grid.Row="1">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                    </ListBox>
-                    
+                </Grid>
+            </metro:MetroTabItem>
+            <metro:MetroTabItem Header="Эксперименты" Name="ExperimentsTab">
+                <Grid ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="ExperimentsGrid" Grid.Row="0" Grid.Column="0"></DataGrid>
                 </Grid>
             </metro:MetroTabItem>
             <metro:MetroTabItem Header="Анимация" Name="AnimationTab">

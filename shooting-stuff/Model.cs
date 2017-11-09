@@ -53,27 +53,6 @@ namespace stuff_falling
             public double Shift { get; set; } = 0;
 
             override public string ToString() {
-                //string result = $"Эксперимент №{Number + 1}:\n" +
-                //                $"Начальные условия: y0={Height:N3}, v0={Speed:N3}\n" +
-                //                $"Ускорение свободного падения: g={(IsConstGravitationalAcceleration ? "9.81" : "g(y)")}\n" +
-                //                 "Действующие силы:\n" +
-                //                 "1) Сила тяжести\n";
-                //for (int i = 0; i < Forces.Count; ++i)
-                //    switch(Forces[i])
-                //    {
-                //        case Model.Forces.Archimedes:
-                //            result += $"{i + 2}) Сила Архимеда (kA={(ArchimedesCoeff / 1:N3}, ρ(тела)={SphereDensity:N3}, ρ(среды)={EnviromentDensity:N3}, V={SphereVolume:N3}, R={SphereRadius:N3})\n";
-                //            break;
-                //        case Model.Forces.Drag:
-                //            result += $"{i + 2}) Сила трения (K2={(IsConstDensity ? (DragCoeff(0) / SphereMass).ToString("N3") : "K2(y)")}, k2={DragCoeff:N3}, m={SphereMass:N3}, S={CrossSectionArea:N3}, ρ(среды){EnviromentDensity:N3})\n";
-                //            break;
-                //        case Model.Forces.Viscosity:
-                //            result += $"{i + 2}) Сила вязкого трения (K1={ViscosityCoeff / SphereMass:N3}, k1={ViscosityCoeff:N3}, m={SphereMass:N3}, C=2, R={SphereRadius:N3}, ρ(среды)={EnviromentDensity:N3}, вязкость={EnviromentViscosity:N3})\n";
-                //            break;
-                //        default:
-                //            throw new Exception("How did you get here???");
-                //    }
-                //return result;
                 return "=^._.^=\n";
             }
     }
