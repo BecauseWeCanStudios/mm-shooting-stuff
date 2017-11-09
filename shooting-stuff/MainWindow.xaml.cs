@@ -47,9 +47,10 @@ namespace stuff_falling
 
         public List<string> Labels { get; set; } = new List<string>();
 
-        public SeriesCollection HeightSeries { get; set; } = new SeriesCollection();
-        public SeriesCollection SpeedSeries { get; set; } = new SeriesCollection();
-        public SeriesCollection AccelerationSeries { get; set; } = new SeriesCollection();
+        public SeriesCollection YSeries { get; set; } = new SeriesCollection();
+        public SeriesCollection XSeries { get; set; } = new SeriesCollection();
+        public SeriesCollection YSpeedSeries { get; set; } = new SeriesCollection();
+        public SeriesCollection XSpeedSeries { get; set; } = new SeriesCollection();
 
         public List<Model.Parameters> Parameters { get; set; } = new List<Model.Parameters>();
 
@@ -65,14 +66,14 @@ namespace stuff_falling
 
         private delegate void UpdateDelegate(Model.Result result);
 
-        private void UpdateSeries(SeriesCollection series, List<double> values)
+        private void UpdateSeries(SeriesCollection series, List<Vector> values, Func<Vector, double> get)
         {
             if (series.Count > 0)
                 series.RemoveAt(series.Count - 1);
             series.Add(new LineSeries
             {
                 Title = "Эксперимент №" + (colorIndex + 1).ToString(),
-                Values = new ChartValues<double>(values),
+                Values = new ChartValues<double>(values.ConvertAll(new Converter<Vector, double>(x => get(x)))),
                 LineSmoothness = 0,
                 PointGeometry = null,
                 Fill = new SolidColorBrush(),
@@ -91,9 +92,10 @@ namespace stuff_falling
                 Animations.Add(new DoubleAnimationUsingKeyFrames());
                 AddEllipse = false;
             }
-            UpdateSeries(HeightSeries, result.Height);
-            UpdateSeries(SpeedSeries, result.Speed);
-            UpdateSeries(AccelerationSeries, result.Acceleration);
+            UpdateSeries(YSeries, result.Coordinates, v => v.Y);
+            UpdateSeries(XSeries, result.Coordinates, v => v.X);
+            UpdateSeries(YSpeedSeries, result.Speed, v => v.Y);
+            UpdateSeries(XSpeedSeries, result.Speed, v => v.X);
             Labels.Clear();
             Labels.AddRange(result.Time.ConvertAll(new Converter<double, string>((double x) => { return x.ToString(); })));
             Ellipsies.Last().Fill = new SolidColorBrush(Chart.Colors[(int)(colorIndex - Chart.Colors.Count * Math.Truncate(colorIndex / (double)Chart.Colors.Count))]);
@@ -140,8 +142,10 @@ namespace stuff_falling
                 IsConstGravitationalAcceleration = GIsConst.IsChecked.Value,
                 SphereRadius = Convert.ToDouble(PassDefaultIfEmpty(BallRadius.Text)),
                 SphereMass = Convert.ToDouble(PassDefaultIfEmpty(BallMass.Text)),
-                EnviromentDensity = Convert.ToDouble(PassDefaultIfEmpty(EnvDensity.Text)),
-                EnviromentViscosity = Convert.ToDouble(PassDefaultIfEmpty(EnvViscosity.Text))
+                ConstEnviromentDensity = Convert.ToDouble(PassDefaultIfEmpty(EnvDensity.Text)),
+                EnviromentViscosity = Convert.ToDouble(PassDefaultIfEmpty(EnvViscosity.Text)),
+                IsConstDensity = RhoIsConst.IsChecked.Value,
+                Shift = Convert.ToDouble(PassDefaultIfEmpty(EnvSpeed.Text))
             };
             if (Parameters.Count == 0)
                 Parameters.Add(parameters);
@@ -206,17 +210,20 @@ namespace stuff_falling
             else if (e.RightButton == MouseButtonState.Pressed)
             {
                 int index = -1;
-                if (HeightRadioButton.IsChecked.Value)
-                    index = HeightSeries.IndexOf(series);
-                else if (SpeedRadioButton.IsChecked.Value)
-                    index = SpeedSeries.IndexOf(series);
+                if (YRadioButton.IsChecked.Value)
+                    index = YSeries.IndexOf(series);
+                else if (XRadioButton.IsChecked.Value)
+                    index = XSeries.IndexOf(series);
+                else if (YSpeedRadioButton.IsChecked.Value)
+                    index = YSpeedSeries.IndexOf(series);
                 else
-                    index = AccelerationSeries.IndexOf(series);
-                if (index == HeightSeries.Count - 1)
+                    index = XSpeedSeries.IndexOf(series);
+                if (index == YSeries.Count - 1)
                     return;
-                HeightSeries.RemoveAt(index);
-                SpeedSeries.RemoveAt(index);
-                AccelerationSeries.RemoveAt(index);
+                YSeries.RemoveAt(index);
+                XSeries.RemoveAt(index);
+                YSpeedSeries.RemoveAt(index);
+                XSpeedSeries.RemoveAt(index);
                 Canvas.Children.Remove(Ellipsies[index]);
                 Ellipsies.RemoveAt(index);
                 Animations.RemoveAt(index);
@@ -228,9 +235,10 @@ namespace stuff_falling
 
         private void SaveExperimentButton_Click(object sender, RoutedEventArgs e)
         {
-            HeightSeries.Insert(HeightSeries.Count - 1, HeightSeries.Last());
-            SpeedSeries.Insert(SpeedSeries.Count - 1, SpeedSeries.Last());
-            AccelerationSeries.Insert(AccelerationSeries.Count - 1, AccelerationSeries.Last());
+            YSeries.Insert(YSeries.Count - 1, YSeries.Last());
+            XSeries.Insert(XSeries.Count - 1, XSeries.Last());
+            YSpeedSeries.Insert(YSpeedSeries.Count - 1, YSpeedSeries.Last());
+            XSpeedSeries.Insert(XSpeedSeries.Count - 1, XSpeedSeries.Last());
             Parameters.Insert(Parameters.Count - 1, Parameters.Last());
             AddEllipse = true;
             ++colorIndex;
@@ -239,15 +247,16 @@ namespace stuff_falling
 
         private void SetAnim()
         {
+            //TODO: MAKE NEW ANIMATION
             double height = -1;
-            foreach (var it in HeightSeries)
+            foreach (var it in YSeries)
                 foreach (double h in it.Values)
                     if (h > height)
                         height = h;
             for (int i = 0; i < Ellipsies.Count; ++i)
             {
                 DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
-                foreach (double it in HeightSeries[i].Values)
+                foreach (double it in YSeries[i].Values)
                     anim.KeyFrames.Add(new LinearDoubleKeyFrame(575 - 460 * it / height));
                 anim.Duration = new Duration(new TimeSpan(0, 0, 5));
                 if (i == 0)
@@ -277,9 +286,10 @@ namespace stuff_falling
 
         private void TRTB_TextChanged(object sender, TextChangedEventArgs e)
         {
-            HeightSeries.Clear();
-            SpeedSeries.Clear();
-            AccelerationSeries.Clear();
+            YSeries.Clear();
+            XSeries.Clear();
+            YSpeedSeries.Clear();
+            XSpeedSeries.Clear();
             for (int i = 0; i < Ellipsies.Count(); ++i)
                 Canvas.Children.RemoveAt(Canvas.Children.Count - 1);
             Ellipsies.Clear();
@@ -291,6 +301,7 @@ namespace stuff_falling
 
         private void UpdateDataTab()
         {
+            //TODO: MAKE NEW TABLE???
             if (!DataChanged)
                 return;
             DataChanged = false;
@@ -298,25 +309,27 @@ namespace stuff_falling
             Data.Columns.Clear();
             Data.Columns.Add("k");
             Data.Columns.Add("t__k");
-            for (var col = 0; col < HeightSeries.Count; ++col)
+            for (var col = 0; col < YSeries.Count; ++col)
             {
+                Data.Columns.Add($"x__{Parameters[col].Number + 1}");
                 Data.Columns.Add($"y__{Parameters[col].Number + 1}");
-                Data.Columns.Add($"v__{Parameters[col].Number + 1}");
-                Data.Columns.Add($"a__{Parameters[col].Number + 1}");
+                Data.Columns.Add($"v__x{Parameters[col].Number + 1}");
+                Data.Columns.Add($"v__y{Parameters[col].Number + 1}");
             }
-            for (var row = 0; row < HeightSeries[0].ActualValues.Count; ++row)
+            for (var row = 0; row < YSeries[0].ActualValues.Count; ++row)
             {
                 List<object> temp = new List<object>()
                     {
                         row,
                         Times[row],
                     };
-                for (var col = 0; col < HeightSeries.Count; ++col)
+                for (var col = 0; col < YSeries.Count; ++col)
                 {
                     temp.AddRange(new[] {
-                            $"{HeightSeries[col].Values[row]:N3}",
-                            $"{SpeedSeries[col].Values[row]:N3}",
-                            $"{AccelerationSeries[col].Values[row]:N3}",
+                            $"{XSeries[col].Values[row]:N3}",
+                            $"{YSeries[col].Values[row]:N3}",
+                            $"{XSpeedSeries[col].Values[row]:N3}",
+                            $"{YSpeedSeries[col].Values[row]:N3}",
                         });
                 }
                 Data.Rows.Add(temp.ToArray());

@@ -441,7 +441,7 @@
                         <BooleanToVisibilityConverter x:Key="b2v"/>
                     </Grid.Resources>
 
-                    <lvc:CartesianChart Name="PlotHeight" Series="{Binding HeightSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=HeightRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
+                    <lvc:CartesianChart Name="PlotY" Series="{Binding YSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=YRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
                         <lvc:CartesianChart.AxisX>
                             <lvc:Axis IsEnabled="True" Labels="{Binding Labels}" ShowLabels="True" FontSize="14"></lvc:Axis>
                         </lvc:CartesianChart.AxisX>
@@ -450,7 +450,16 @@
                         </lvc:CartesianChart.AxisY>
                     </lvc:CartesianChart>
 
-                    <lvc:CartesianChart Name="PlotSpeed" Series="{Binding SpeedSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=SpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
+                  <lvc:CartesianChart Name="PlotX" Series="{Binding XSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=XRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
+                    <lvc:CartesianChart.AxisX>
+                      <lvc:Axis IsEnabled="True" Labels="{Binding Labels}" ShowLabels="True" FontSize="14"></lvc:Axis>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                      <lvc:Axis IsMerged="False" FontSize="14"></lvc:Axis>
+                    </lvc:CartesianChart.AxisY>
+                  </lvc:CartesianChart>
+
+                    <lvc:CartesianChart Name="PlotYSpeed" Series="{Binding YSpeedSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=YSpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
                         <lvc:CartesianChart.AxisX>
                             <lvc:Axis IsEnabled="True" Labels="{Binding Labels}" ShowLabels="True" FontSize="14"></lvc:Axis>
                         </lvc:CartesianChart.AxisX>
@@ -459,24 +468,25 @@
                         </lvc:CartesianChart.AxisY>
                     </lvc:CartesianChart>
 
-                    <lvc:CartesianChart Name="PlotAcceleration" Series="{Binding AccelerationSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=AccelerationRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
-                        <lvc:CartesianChart.AxisX>
-                            <lvc:Axis IsEnabled="True" Labels="{Binding Labels}" ShowLabels="True" FontSize="14"></lvc:Axis>
-                        </lvc:CartesianChart.AxisX>
-                        <lvc:CartesianChart.AxisY>
-                            <lvc:Axis IsMerged="False" FontSize="14"></lvc:Axis>
-                        </lvc:CartesianChart.AxisY>
-                    </lvc:CartesianChart>
+                  <lvc:CartesianChart Name="PlotXSpeed" Series="{Binding XSpeedSeries}" Hoverable="False" DataTooltip="{x:Null}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" DisableAnimations="True" Visibility="{Binding ElementName=XSpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}">
+                    <lvc:CartesianChart.AxisX>
+                      <lvc:Axis IsEnabled="True" Labels="{Binding Labels}" ShowLabels="True" FontSize="14"></lvc:Axis>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                      <lvc:Axis IsMerged="False" FontSize="14"></lvc:Axis>
+                    </lvc:CartesianChart.AxisY>
+                  </lvc:CartesianChart>
 
                     <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{StaticResource GlobalStackPanelStyle}" Margin="0, 20, 0, 20" MaxHeight="260">
                         <StackPanel Margin="10">
                             <Label Content="Параметр"/>
-                            <RadioButton Name="HeightRadioButton" GroupName="Plot" Content="Высота" IsChecked="True" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
-                            <RadioButton Name="SpeedRadioButton" GroupName="Plot" Content="Скорость" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
-                            <RadioButton Name="AccelerationRadioButton" GroupName="Plot" Content="Ускорение" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <RadioButton Name="YRadioButton" GroupName="Plot" Content="Координата Y" IsChecked="True" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <RadioButton Name="XRadioButton" GroupName="Plot" Content="Координата X" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <RadioButton Name="YSpeedRadioButton" GroupName="Plot" Content="Скорсоть Y" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            <RadioButton Name="XSpeedRadioButton" GroupName="Plot" Content="Скорость X" Margin="3" Foreground="{DynamicResource MaterialDesignBody}"/>
                             <Separator/>
                             <Label Content="Эксперименты"/>
-                            <ListBox Name="HeightListBox" ItemsSource="{Binding HeightSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=HeightRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
+                            <ListBox Name="YListBox" ItemsSource="{Binding YSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=YRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding (lvc:LineSeries.Title)}" 
@@ -486,7 +496,17 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <ListBox Name="SpeedListBox" ItemsSource="{Binding SpeedSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=SpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
+                          <ListBox Name="XListBox" ItemsSource="{Binding XSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=XRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
+                            <ListBox.ItemTemplate>
+                              <DataTemplate>
+                                <TextBlock Text="{Binding (lvc:LineSeries.Title)}" 
+                                           Foreground="{Binding (lvc:LineSeries.Stroke)}"
+                                           Opacity="{Binding (lvc:LineSeries.Visibility), Converter={StaticResource OpacityConverter}}"/>
+                              </DataTemplate>
+                            </ListBox.ItemTemplate>
+                          </ListBox>
+
+                            <ListBox Name="YSpeedListBox" ItemsSource="{Binding YSpeedSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=YSpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding (lvc:LineSeries.Title)}" 
@@ -496,14 +516,14 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <ListBox Name="AccelerationListBox" ItemsSource="{Binding AccelerationSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=AccelerationRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding (lvc:LineSeries.Title)}" 
-                                               Foreground="{Binding (lvc:LineSeries.Stroke)}"
-                                               Opacity="{Binding (lvc:LineSeries.Visibility), Converter={StaticResource OpacityConverter}}"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
+                            <ListBox Name="XSpeedListBox" ItemsSource="{Binding XSpeedSeries}" PreviewMouseDown="ListBox_OnPreviewMouseDown" BorderThickness="0" Background="Transparent" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Top" Visibility="{Binding ElementName=XSpeedRadioButton, Path=IsChecked, Converter={StaticResource B2V}}" MaxHeight="100" ItemContainerStyle="{StaticResource GlobalListBoxItemStype}">
+                              <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                  <TextBlock Text="{Binding (lvc:LineSeries.Title)}" 
+                                             Foreground="{Binding (lvc:LineSeries.Stroke)}"
+                                             Opacity="{Binding (lvc:LineSeries.Visibility), Converter={StaticResource OpacityConverter}}"/>
+                                </DataTemplate>
+                              </ListBox.ItemTemplate>
                             </ListBox>
                         </StackPanel>
                     </StackPanel>
@@ -533,6 +553,7 @@
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>
+                    
                 </Grid>
             </metro:MetroTabItem>
             <metro:MetroTabItem Header="Анимация" Name="AnimationTab">
