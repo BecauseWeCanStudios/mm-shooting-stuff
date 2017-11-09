@@ -55,7 +55,9 @@ namespace stuff_falling
         public List<Model.Parameters> Parameters { get; set; } = new List<Model.Parameters>();
 
         private List<Ellipse> Ellipsies = new List<Ellipse>();
-        private List<DoubleAnimationUsingKeyFrames> Animations = new List<DoubleAnimationUsingKeyFrames>();
+        private List<Polyline> Polylines = new List<Polyline>();
+        private List<DoubleAnimationUsingKeyFrames> YAnimations = new List<DoubleAnimationUsingKeyFrames>();
+        private List<DoubleAnimationUsingKeyFrames> XAnimations = new List<DoubleAnimationUsingKeyFrames>();
 
         private List<double> Times = new List<double>();
 
@@ -85,12 +87,21 @@ namespace stuff_falling
         {
             if (AddEllipse)
             {
+                Polylines.Add(new Polyline
+                {
+                    Stroke = new SolidColorBrush(Colors.Black),
+                    StrokeThickness = 5
+                });
+                AnimCanvas.Children.Add(Polylines.Last());
+                Canvas.SetLeft(AnimCanvas.Children[AnimCanvas.Children.Count - 1], 200);
+                Canvas.SetTop(AnimCanvas.Children[AnimCanvas.Children.Count - 1], 200);
                 Ellipsies.Add(new Ellipse() { Width = 30, Height = 30 });
-                Canvas.Children.Add(Ellipsies.Last());
-                Canvas.SetLeft(Canvas.Children[Canvas.Children.Count - 1], 625);
-                Canvas.SetTop(Canvas.Children[Canvas.Children.Count - 1], 575);
-                Animations.Add(new DoubleAnimationUsingKeyFrames());
-                AddEllipse = false;
+                AnimCanvas.Children.Add(Ellipsies.Last());
+                Canvas.SetLeft(AnimCanvas.Children[AnimCanvas.Children.Count - 1], 625);
+                Canvas.SetTop(AnimCanvas.Children[AnimCanvas.Children.Count - 1], 575);
+                YAnimations.Add(new DoubleAnimationUsingKeyFrames());
+                XAnimations.Add(new DoubleAnimationUsingKeyFrames());
+                AddEllipse = false; 
             }
             UpdateSeries(YSeries, result.Coordinates, v => v.Y);
             UpdateSeries(XSeries, result.Coordinates, v => v.X);
@@ -99,6 +110,9 @@ namespace stuff_falling
             Labels.Clear();
             Labels.AddRange(result.Time.ConvertAll(new Converter<double, string>((double x) => { return x.ToString(); })));
             Ellipsies.Last().Fill = new SolidColorBrush(Chart.Colors[(int)(colorIndex - Chart.Colors.Count * Math.Truncate(colorIndex / (double)Chart.Colors.Count))]);
+            Polylines.Last().Points.Clear();
+            foreach (var it in result.Coordinates)
+                Polylines.Last().Points.Add(new Point(it.X, it.Y));
             UpdateAnimation = true;
             DataChanged = true;
             Times = result.Time;
@@ -225,9 +239,9 @@ namespace stuff_falling
                 XSeries.RemoveAt(index);
                 YSpeedSeries.RemoveAt(index);
                 XSpeedSeries.RemoveAt(index);
-                Canvas.Children.Remove(Ellipsies[index]);
+                AnimCanvas.Children.Remove(Ellipsies[index]);
                 Ellipsies.RemoveAt(index);
-                Animations.RemoveAt(index);
+                YAnimations.RemoveAt(index);
                 Parameters.RemoveAt(index);
                 UpdateAnimation = true;
                 DataChanged = true;
@@ -254,16 +268,38 @@ namespace stuff_falling
                 foreach (double h in it.Values)
                     if (h > height)
                         height = h;
+            double left = Double.PositiveInfinity;
+            double right = Double.NegativeInfinity;
+            foreach (var it in XSeries)
+                foreach (double x in it.Values) {
+                    if (x < left)
+                        left = x;
+                    if (x > right)
+                        right = x;
+                }
+            double kx = right != left ? (AnimCanvas.Width - 200) / (right - left) : 0;
+            double ky = (AnimCanvas.Height - 200) / height;
             for (int i = 0; i < Ellipsies.Count; ++i)
             {
                 DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
                 foreach (double it in YSeries[i].Values)
-                    anim.KeyFrames.Add(new LinearDoubleKeyFrame(575 - 460 * it / height));
+                    anim.KeyFrames.Add(new LinearDoubleKeyFrame(AnimCanvas.Height - 100 -  ky * it));
                 anim.Duration = new Duration(new TimeSpan(0, 0, 5));
                 if (i == 0)
                     anim.Completed += AnimEnd;
-                Animations[i] = anim;
-                Canvas.SetTop(Ellipsies[i], Animations[i].KeyFrames[0].Value);
+                YAnimations[i] = anim;
+                DoubleAnimationUsingKeyFrames anim1 = new DoubleAnimationUsingKeyFrames();
+                foreach (double it in XSeries[i].Values)
+                    anim1.KeyFrames.Add(new LinearDoubleKeyFrame((it - left) * kx + 100));
+                anim1.Duration = new Duration(new TimeSpan(0, 0, 5));
+                XAnimations[i] = anim1;
+                Canvas.SetLeft(Polylines[i], XAnimations[i].KeyFrames[0].Value);
+                Canvas.SetTop(Polylines[i], YAnimations[i].KeyFrames[0].Value);
+                Canvas.SetTop(Ellipsies[i], YAnimations[i].KeyFrames[0].Value);
+                Canvas.SetLeft(Ellipsies[i], XAnimations[i].KeyFrames[0].Value);
+                Polylines[i].Points.Clear();
+                for (int j = 0; j < YSeries[i].Values.Count; ++j)
+                    Polylines.Last().Points.Add(new Point(anim1.KeyFrames[j].Value - anim1.KeyFrames[0].Value + 15, anim.KeyFrames[j].Value - anim.KeyFrames[0].Value + 15));
             }
             UpdateAnimation = false;
         }
@@ -272,7 +308,10 @@ namespace stuff_falling
         {
             StartAnimationButton.IsEnabled = true;
             foreach (var it in Ellipsies)
+            {
                 it.BeginAnimation(Canvas.TopProperty, null);
+                it.BeginAnimation(Canvas.LeftProperty, null);
+            }
         }
 
         private void StartAnimationButton_Click(object sender, RoutedEventArgs e)
@@ -281,7 +320,10 @@ namespace stuff_falling
             if (UpdateAnimation)
                 SetAnim();
             for (int i = 0; i < Ellipsies.Count; ++i)
-                Ellipsies[i].BeginAnimation(Canvas.TopProperty, Animations[i]);
+            {
+                Ellipsies[i].BeginAnimation(Canvas.TopProperty, YAnimations[i]);
+                Ellipsies[i].BeginAnimation(Canvas.LeftProperty, XAnimations[i]);
+            }
             button.IsEnabled = false;
         }
 
@@ -292,9 +334,10 @@ namespace stuff_falling
             YSpeedSeries.Clear();
             XSpeedSeries.Clear();
             for (int i = 0; i < Ellipsies.Count(); ++i)
-                Canvas.Children.RemoveAt(Canvas.Children.Count - 1);
+                AnimCanvas.Children.RemoveAt(AnimCanvas.Children.Count - 1);
             Ellipsies.Clear();
-            Animations.Clear();
+            YAnimations.Clear();
+            XAnimations.Clear();
             AddEllipse = true;
             colorIndex = 0;
             TB_TextChanged(sender, e);

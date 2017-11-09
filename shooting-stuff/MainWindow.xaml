@@ -569,17 +569,7 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Button Name="StartAnimationButton" Grid.Row ="0" Grid.Column="0" HorizontalAlignment="Left" Click="StartAnimationButton_Click">Начать</Button>
-                    <Canvas Name="Canvas" VerticalAlignment="Center" HorizontalAlignment="Center" Width="1280" Height="720" Grid.Row ="0" Grid.Column="0" Grid.RowSpan="2">
-                        <Line X1="640" X2="640" Y1="120" Y2="600"
-                        Stroke="Black"
-                        StrokeThickness="10" />
-                        <Line X1="620" X2="660" Y1="120" Y2="120"
-                        Stroke="Black"
-                        StrokeThickness="10" />
-                        <Line X1="620" X2="660" Y1="600" Y2="600"
-                        Stroke="Black"
-                        StrokeThickness="10" />
-                    </Canvas>
+                    <Canvas Name="AnimCanvas" VerticalAlignment="Center" HorizontalAlignment="Center" Width="1280" Height="720" Grid.Row ="0" Grid.Column="0" Grid.RowSpan="2"></Canvas>
                 </Grid>
             </metro:MetroTabItem>
         </dragablz:TabablzControl>
