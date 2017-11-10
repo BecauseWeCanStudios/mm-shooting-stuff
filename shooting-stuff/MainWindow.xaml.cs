@@ -386,7 +386,11 @@ namespace stuff_falling
         private void TRTB_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (AnimCanvas != null)
-                AnimCanvas.Children.RemoveRange(2, YSeries.Count * 2);
+            {
+                AnimCanvas.Children.Clear();
+                AnimCanvas.Children.Add(XAxis);
+                AnimCanvas.Children.Add(YAxis);
+            }
             YSeries.Clear();
             XSeries.Clear();
             YSpeedSeries.Clear();
